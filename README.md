@@ -11,8 +11,14 @@ Execute the following steps to run the challenge:
 
 1. Build the console project and run:
     ```
-    ./CreateMeasurement.sh 1000000000 output_directory
+    ./CreateMeasurement 1000000000 output_directory
     ```
 
     This will take a few minutes.
     **Attention:** the generated file has a size of approx. **14 GB**, so make sure to have enough diskspace
+
+2. Calculate the average measurement values:
+    ```
+    ./CalculateAverage filepath to measurements.txt
+    ```
+
