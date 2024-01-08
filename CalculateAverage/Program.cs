@@ -1,15 +1,10 @@
-﻿
-using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Globalization;
+﻿using System.Diagnostics;
 using System.Text;
 
 namespace CalculateAverage;
 
 internal static class Program
 {
-    private const char Separator = ';';
-    
     private static void Main(string[] args)
     {
         if (args.Length != 1)
@@ -25,40 +20,13 @@ internal static class Program
         Stopwatch watch = new Stopwatch();
         watch.Start();
 
-        var output = Process(file);
-        
+        var mApp = new MeasurementApp(file);
+        var result = mApp.Process();
         watch.Stop();
         
-        Console.WriteLine(watch.ElapsedMilliseconds);
-        Console.WriteLine(output);
-    }
-
-    private static string Process(string file)
-    {
-        ConcurrentDictionary<string, MeasurementAggregator> measurementsDic = new();
+        mApp.Dispose();
         
-        var processLines = Task.Factory.StartNew(() =>
-        {
-            Parallel.ForEach(File.ReadLines(file), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount},line =>
-            {
-                var lineSpan = line.AsSpan();
-                var indexSeparator = lineSpan.IndexOf(Separator);
-                var stationName = lineSpan.Slice(0, indexSeparator).ToString();
-                var value = double.Parse(lineSpan.Slice(indexSeparator + 1, lineSpan.Length - (indexSeparator + 1)));
-
-                if (measurementsDic.TryAdd(stationName, new MeasurementAggregator(value))) return;
-                while(measurementsDic.TryGetValue(stationName, out MeasurementAggregator curValue))
-                {
-                    if(measurementsDic.TryUpdate(stationName, curValue.Combine(new MeasurementAggregator(value)), curValue))
-                        break;
-                }
-                //Console.WriteLine($"Station: {stationName.ToString()}, measurement: {value.ToString(CultureInfo.InvariantCulture)}");
-            }); 
-        });
-
-        processLines.Wait();
-
-        var sortedEntries = measurementsDic.OrderBy(x => x.Key);
+        var sortedEntries = result.OrderBy(x => x.Key);
         
         var sb = new StringBuilder();
         sb.Append("{");
@@ -70,6 +38,9 @@ internal static class Program
             sb.Append(", ");
         }
         sb.Append("}");
-        return sb.ToString();
+        
+        Console.WriteLine(sb.ToString());
+        
+        Console.WriteLine(watch.ElapsedMilliseconds);
     }
 }
