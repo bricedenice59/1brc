@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
+using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
 
@@ -91,14 +92,17 @@ namespace CalculateAverage;
                 var indexNewLine = span.IndexOf((byte)NewLine);
 
                 var value = double.Parse(span.Slice(0, indexNewLine));
+                
+                ref var measurement = ref CollectionsMarshal
+                    .GetValueRefOrAddDefault(measurementsDic, stationName, out var exists);
 
-                if (!measurementsDic.TryGetValue(stationName, out _))
+                if (!exists)
                 {
-                    measurementsDic.Add(stationName, new MeasurementAggregator(value));
+                    measurement = new MeasurementAggregator(value);
                 }
                 else
                 {
-                    measurementsDic[stationName] = measurementsDic[stationName].Combine(new MeasurementAggregator(value));
+                    measurement.Combine(new MeasurementAggregator(value));
                 }
                 
                 currentPosition += indexSeparator + indexNewLine + 1;
