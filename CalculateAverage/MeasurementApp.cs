@@ -81,9 +81,6 @@ namespace CalculateAverage;
                 
                 var indexSeparator = span.IndexOf((byte)Separator);
 
-                if(indexSeparator == -1)
-                    Debugger.Break();
-
                 var stationName = new string((sbyte*)ptr, 0, indexSeparator, Encoding.UTF8);
 
                 indexSeparator += 1;

@@ -41,6 +41,7 @@ internal static class Program
         
         Console.WriteLine(sb.ToString());
         
-        Console.WriteLine(watch.ElapsedMilliseconds);
+        Console.WriteLine("Time: {0}m {1}s {2}ms", watch.Elapsed.Minutes, 
+            watch.Elapsed.Seconds, watch.Elapsed.Milliseconds);
     }
 }
