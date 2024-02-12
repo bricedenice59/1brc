@@ -26,7 +26,7 @@ internal static class Program
         
         mApp.Dispose();
         
-        var sortedEntries = result.OrderBy(x => x.Key);
+        var sortedEntries = result.OrderBy(x => x.Key, StringComparer.Ordinal);
         
         var sb = new StringBuilder();
         sb.Append("{");
